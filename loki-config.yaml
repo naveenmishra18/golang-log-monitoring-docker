@@ -1,0 +1,49 @@
+auth_enabled: false
+
+server:
+  port: 3100
+
+storage:
+  aws_s3:
+    bucket: s3://your-bucket-name/loki-data
+    access_key: YOUR_AWS_ACCESS_KEY
+    secret_key: YOUR_AWS_SECRET_KEY
+    region: us-east-1
+    secure: true
+    bucket_name: your-bucket-name
+    force_path_style: false
+    endpoint: https://s3.amazonaws.com
+
+  local_store:
+    index_directory: /loki/index
+    shared_backend: filesystem
+    cache_directory: /loki/cache
+
+distribution:
+  cluster:
+    storage:
+      type: inmemory
+
+ingestion:
+  idle_timeout: 5m
+  retention_period: 30s
+  max_lifetime: 1h
+  lifecycle:
+    cluster_ring:
+      storage:
+        type: inmemory
+      replication_count: 1
+
+schema:
+  history:
+    - start_date: 2022-10-24
+      backend: boltdb-shipper
+      object_storage: filesystem
+      version: v11
+      index_rules:
+        prefix: index_
+        interval: 24h
+
+compaction:
+  temp_directory: /loki/compactor
+  shared_backend: filesystem

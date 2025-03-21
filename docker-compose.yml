@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  app_logger:
+    build: .
+    container_name: app-logger
+    volumes:
+      - ./logs:/var/log/service
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  log_storage:
+    image: grafana/loki:2.9.0
+    container_name: log-storage
+    volumes:
+      - ./loki-config.yml:/etc/loki/config.yml
+    ports:
+      - "3100:3100"
+    restart: always
+
+  log_collector:
+    image: grafana/promtail:2.9.0
+    container_name: log-collector
+    volumes:
+      - ./logs:/var/log/service
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    restart: unless-stopped
+
+  monitoring_dashboard:
+    image: grafana/grafana:latest
+    container_name: monitoring-dashboard
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
